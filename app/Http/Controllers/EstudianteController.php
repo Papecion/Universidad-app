@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Estudiante;
 use Illuminate\Http\Request;
 
 class EstudianteController extends Controller
@@ -13,7 +14,8 @@ class EstudianteController extends Controller
      */
     public function index()
     {
-        //
+        $estudiantes = Estudiante::all();
+        return view('estudiantes.index', compact('estudiantes'));
     }
 
     /**
@@ -23,7 +25,7 @@ class EstudianteController extends Controller
      */
     public function create()
     {
-        //
+        return view('estudiantes.create');
     }
 
     /**
@@ -34,7 +36,17 @@ class EstudianteController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         // Validación de datos
+         $request->validate([
+            'nombre' => 'required',
+            'apellido' => 'required',
+            'email' => 'required|email|unique:estudiantes',
+        ]);
+
+        // Crear un nuevo estudiante
+        Estudiante::create($request->all());
+
+        return redirect()->route('estudiantes.index')->with('success', 'Estudiante registrado exitosamente.');
     }
 
     /**

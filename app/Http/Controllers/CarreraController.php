@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Carrera;
 use Illuminate\Http\Request;
 
 class CarreraController extends Controller
@@ -13,7 +14,8 @@ class CarreraController extends Controller
      */
     public function index()
     {
-        //
+        $carreras = Carrera::all();
+        return view('carreras.index', compact('carreras'));
     }
 
     /**
@@ -23,7 +25,7 @@ class CarreraController extends Controller
      */
     public function create()
     {
-        //
+        return view('carreras.create');
     }
 
     /**
@@ -34,7 +36,17 @@ class CarreraController extends Controller
      */
     public function store(Request $request)
     {
-        //
+         // Validación de datos
+         $request->validate([
+            'nombre' => 'required',
+            'descripcion' => 'nullable',
+            'duracion_anios' => 'nullable|integer',
+        ]);
+
+        // Crear una nueva carrera
+        Carrera::create($request->all());
+
+        return redirect()->route('carreras.index')->with('success', 'Carrera registrada exitosamente.');
     }
 
     /**

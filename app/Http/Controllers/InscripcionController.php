@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Inscripcion;
+use App\Models\Estudiante;
+use App\Models\Carrera;
 use Illuminate\Http\Request;
 
 class InscripcionController extends Controller
@@ -13,7 +16,8 @@ class InscripcionController extends Controller
      */
     public function index()
     {
-        //
+        $inscripciones = Inscripcion::all();
+        return view('inscripciones.index', compact('inscripciones'));
     }
 
     /**
@@ -23,7 +27,9 @@ class InscripcionController extends Controller
      */
     public function create()
     {
-        //
+        $estudiantes = Estudiante::all();
+        $carreras = Carrera::all();
+        return view('inscripciones.create', compact('estudiantes', 'carreras'));
     }
 
     /**
@@ -34,7 +40,18 @@ class InscripcionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validación de datos
+        $request->validate([
+            'estudiante_id' => 'required|exists:estudiantes,id',
+            'carrera_id' => 'required|exists:carreras,id',
+            'fecha_inscripcion' => 'required|date',
+        ]);
+
+        // Crear una nueva inscripción
+        Inscripcion::create($request->all());
+
+        return redirect()->route('inscripciones.index')->with('success', 'Inscripción realizada exitosamente.');
+    
     }
 
     /**
