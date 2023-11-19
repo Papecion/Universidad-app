@@ -16,8 +16,13 @@ class InscripcionController extends Controller
      */
     public function index()
     {
-        $inscripciones = Inscripcion::all();
-        return view('inscripciones.index', compact('inscripciones'));
+        $inscripciones = DB::table('inscripciones')
+        ->join('estudiantes', 'inscripciones.estudiante_id', '=', 'estudiantes.id')
+        ->join('carreras', 'inscripciones.carrera_id', '=', 'carreras.id')
+        ->select('inscripciones.*', 'estudiantes.nombre as estudiante_nombre', 'carreras.nombre as carrera_nombre')
+        ->get();
+
+    return view('inscripciones.index', ['inscripciones' => $inscripciones]);
     }
 
     /**

@@ -16,7 +16,7 @@
 <body>
     <div class="container">
         <h1>Listado de estudiantes</h1>
-        <a href="{{ route('estudiantes.create') }}" class="btn btn-success">Add</a>
+        <a href="{{ route('estudiantes.create') }}" class="btn btn-success">Añadir estudiante</a>
         <table class="table">
             <thead>
                 <tr>

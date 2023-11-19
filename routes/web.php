@@ -33,6 +33,10 @@ Route::middleware(['auth'])->group(function () {
     // Rutas para Carreras
     Route::get('/carreras', [CarreraController::class, 'index'])->name('carreras.index');
     Route::get('/carreras/create', [CarreraController::class, 'create'])->name('carreras.create');
+    Route::post('/carreras', [CarreraController::class, 'store'])->name('carreras.store');
+    Route::get('/carreras/{carrera}/edit', [CarreraController::class, 'edit'])->name('carreras.edit');
+    Route::put('/carreras/{carrera}/update', [CarreraController::class, 'update'])->name('carreras.update');
+    Route::delete('/carreras/{carrera}', [CarreraController::class, 'destroy'])->name('carreras.destroy');
 
     // Rutas para Inscripciones
     Route::get('/inscripciones', [InscripcionController::class, 'index'])->name('inscripciones.index');

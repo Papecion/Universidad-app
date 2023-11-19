@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Carrera;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class CarreraController extends Controller
@@ -14,8 +15,8 @@ class CarreraController extends Controller
      */
     public function index()
     {
-        $carreras = Carrera::all();
-        return view('carreras.index', compact('carreras'));
+        $carreras = DB::table('carreras')->get();
+        return view('carreras.index', ['carreras' => $carreras]);
     }
 
     /**
@@ -36,18 +37,24 @@ class CarreraController extends Controller
      */
     public function store(Request $request)
     {
-         // Validación de datos
-         $request->validate([
-            'nombre' => 'required',
-            'descripcion' => 'nullable',
-            'duracion_anios' => 'nullable|integer',
+        $request->validate([
+            'nombre' => 'required|unique:carreras',
+            'descripcion' => 'required',
+            'duracion_anios' => 'required|numeric',
+            // Otros campos y reglas de validación según sea necesario
         ]);
 
-        // Crear una nueva carrera
-        Carrera::create($request->all());
+        DB::table('carreras')->insert([
+            'nombre' => $request->input('nombre'),
+            'descripcion' => $request->input('descripcion'),
+            'duracion_anios' => $request->input('duracion_anios'),
+            // Otros campos según sea necesario
+        ]);
 
-        return redirect()->route('carreras.index')->with('success', 'Carrera registrada exitosamente.');
+        return redirect()->route('carreras.index')->with('success', 'Carrera creada exitosamente.');
     }
+
+
 
     /**
      * Display the specified resource.
@@ -68,7 +75,15 @@ class CarreraController extends Controller
      */
     public function edit($id)
     {
-        //
+        {
+            $carrera = DB::table('carreras')->where('id', $id)->first();
+            
+            if (!$carrera) {
+                abort(404, 'Carrera no encontrada');
+            }
+    
+            return view('carreras.edit', compact('carrera'));
+        }
     }
 
     /**
@@ -80,7 +95,27 @@ class CarreraController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'nombre' => 'required|unique:carreras,nombre,'.$id,
+            'descripcion' => 'required',
+            'duracion_anios' => 'required|numeric',
+            // Otros campos y reglas de validación según sea necesario
+        ]);
+
+        $carrera = DB::table('carreras')->where('id', $id)->first();
+
+        if (!$carrera) {
+            abort(404, 'Carrera no encontrada');
+        }
+
+        DB::table('carreras')->where('id', $id)->update([
+            'nombre' => $request->input('nombre'),
+            'descripcion' => $request->input('descripcion'),
+            'duracion_anios' => $request->input('duracion_anios'),
+            // Otros campos según sea necesario
+        ]);
+
+        return redirect()->route('carreras.index')->with('success', 'Carrera actualizada exitosamente.');
     }
 
     /**
@@ -91,6 +126,15 @@ class CarreraController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $carrera = DB::table('carreras')->where('id', $id)->first();
+
+        if (!$carrera) {
+            abort(404, 'Carrera no encontrada');
+        }
+
+        DB::table('carreras')->where('id', $id)->delete();
+
+        return redirect()->route('carreras.index')->with('success', 'Carrera eliminada exitosamente.');
     }
+    
 }
