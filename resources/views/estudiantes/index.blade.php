@@ -29,14 +29,24 @@
             </thead>
             <tbody>
                 @foreach ($estudiantes as $estudiante)
-                    <tr>
-                        <th scope="row">{{ $estudiante->id }}</th>
-                        <td>{{ $estudiante->nombre }}</td>
-                        <td>{{ $estudiante->apellido }}</td>
-                        <td><span>Actions</span></td>
-                        <td>
-                        </td>
-                    </tr>
+                <tr>
+                    <th scope="row">{{ $estudiante->id }}</th>
+                    <td>{{ $estudiante->nombre }}</td>
+                    <td>{{ $estudiante->apellido }}</td>
+                    <td>{{ $estudiante->email }}</td>
+                    <td>
+                        <!-- Botón para Editar -->
+                        <a href="{{ route('estudiantes.edit', $estudiante->id) }}" class="btn btn-primary">Editar</a>
+
+                        <!-- Botón para Eliminar (puedes mostrar un modal de confirmación) -->
+                        <form action="{{ route('estudiantes.destroy', ['estudiante' => $estudiante->id]) }}"
+                            method="POST" style="display: inline-block">
+                            @method('delete')
+                            @csrf
+                            <input class="btn btn-danger" type="submit" value="Eliminar">
+                        </form>
+                    </td>
+                </tr>
                 @endforeach
             </tbody>
         </table>4
@@ -44,7 +54,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
-    </script>
+        </script>
 
 
 </body>

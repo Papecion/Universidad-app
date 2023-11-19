@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Estudiante;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 
 class EstudianteController extends Controller
 {
@@ -44,8 +44,12 @@ class EstudianteController extends Controller
             'email' => 'required|email|unique:estudiantes',
         ]);
 
-        // Crear un nuevo estudiante
-        Estudiante::create($request->all());
+            // Insertar el nuevo estudiante en la base de datos
+    DB::table('estudiantes')->insert([
+        'nombre' => $request->input('nombre'),
+        'apellido' => $request->input('apellido'),
+        'email' => $request->input('email'),
+    ]);
 
         return redirect()->route('estudiantes.index')->with('success', 'Estudiante registrado exitosamente.');
     }
@@ -69,7 +73,13 @@ class EstudianteController extends Controller
      */
     public function edit($id)
     {
-        //
+        $estudiante = DB::table('estudiantes')->find($id);
+    
+        if (!$estudiante) {
+            abort(404, 'Estudiante no encontrado');
+        }
+    
+        return view('estudiantes.edit', compact('estudiante'));
     }
 
     /**
@@ -81,9 +91,28 @@ class EstudianteController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $request->validate([
+            'nombre' => 'required',
+            'apellido' => 'required',
+            'email' => 'required|email|unique:estudiantes,email,'.$id,
+            // Añade otras reglas de validación según sea necesario
+        ]);
+    
+        $estudiante = DB::table('estudiantes')->find($id);
+    
+        if (!$estudiante) {
+            abort(404, 'Estudiante no encontrado');
+        }
+    
+        DB::table('estudiantes')->where('id', $id)->update([
+            'nombre' => $request->input('nombre'),
+            'apellido' => $request->input('apellido'),
+            'email' => $request->input('email'),
+            // Actualiza otros campos según sea necesario
+        ]);
+    
+        return redirect()->route('estudiantes.index')->with('success', 'Estudiante actualizado exitosamente.');
     }
-
     /**
      * Remove the specified resource from storage.
      *
@@ -92,6 +121,14 @@ class EstudianteController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $estudiante = DB::table('estudiantes')->find($id);
+
+    if (!$estudiante) {
+        abort(404, 'Estudiante no encontrado');
+    }
+
+    DB::table('estudiantes')->where('id', $id)->delete();
+
+    return redirect()->route('estudiantes.index')->with('success', 'Estudiante eliminado exitosamente.');
     }
 }
