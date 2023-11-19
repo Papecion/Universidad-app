@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Inscripcion;
 use App\Models\Estudiante;
 use App\Models\Carrera;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class InscripcionController extends Controller
@@ -17,12 +18,12 @@ class InscripcionController extends Controller
     public function index()
     {
         $inscripciones = DB::table('inscripciones')
-        ->join('estudiantes', 'inscripciones.estudiante_id', '=', 'estudiantes.id')
-        ->join('carreras', 'inscripciones.carrera_id', '=', 'carreras.id')
-        ->select('inscripciones.*', 'estudiantes.nombre as estudiante_nombre', 'carreras.nombre as carrera_nombre')
-        ->get();
+            ->join('estudiantes', 'inscripciones.estudiante_id', '=', 'estudiantes.id')
+            ->join('carreras', 'inscripciones.carrera_id', '=', 'carreras.id')
+            ->select('inscripciones.*', 'estudiantes.nombre as estudiante_nombre', 'carreras.nombre as carrera_nombre')
+            ->get();
 
-    return view('inscripciones.index', ['inscripciones' => $inscripciones]);
+        return view('inscripciones.index', ['inscripciones' => $inscripciones]);
     }
 
     /**
@@ -32,9 +33,10 @@ class InscripcionController extends Controller
      */
     public function create()
     {
-        $estudiantes = Estudiante::all();
-        $carreras = Carrera::all();
-        return view('inscripciones.create', compact('estudiantes', 'carreras'));
+        $estudiantes = DB::table('estudiantes')->get();
+        $carreras = DB::table('carreras')->get();
+
+        return view('inscripciones.create', ['estudiantes' => $estudiantes, 'carreras' => $carreras]);
     }
 
     /**
@@ -46,17 +48,23 @@ class InscripcionController extends Controller
     public function store(Request $request)
     {
         // Validación de datos
+        // Validación de datos
         $request->validate([
-            'estudiante_id' => 'required|exists:estudiantes,id',
-            'carrera_id' => 'required|exists:carreras,id',
-            'fecha_inscripcion' => 'required|date',
+            'estudiante_id' => 'required',
+            'carrera_id' => 'required',
+            'fecha_inscripcion' => 'required',
         ]);
 
-        // Crear una nueva inscripción
-        Inscripcion::create($request->all());
+        // Crear la nueva inscripción
+        DB::table('inscripciones')->insert([
+            'estudiante_id' => $request->estudiante_id,
+            'carrera_id' => $request->carrera_id,
+            'fecha_inscripcion' => $request->fecha_inscripcion,
+        ]);
 
-        return redirect()->route('inscripciones.index')->with('success', 'Inscripción realizada exitosamente.');
-    
+        // Redireccionar a la lista de inscripciones
+        return redirect()->route('inscripciones.index');
+
     }
 
     /**
@@ -67,7 +75,21 @@ class InscripcionController extends Controller
      */
     public function show($id)
     {
-        //
+        $inscripcion = DB::table('inscripciones')
+        ->join('estudiantes', 'inscripciones.estudiante_id', '=', 'estudiantes.id')
+        ->join('carreras', 'inscripciones.carrera_id', '=', 'carreras.id')
+        ->select('inscripciones.*', 'estudiantes.nombre as estudiante_nombre', 'estudiantes.apellido as estudiante_apellido', 'carreras.nombre as carrera_nombre')
+        ->where('inscripciones.id', $id)
+        ->first();
+
+    // Verificar si se encontraron datos para la inscripción
+    if (!$inscripcion) {
+        abort(404);
+    }
+
+    // Pasar los datos a la vista
+    return view('inscripciones.show', compact('inscripcion'));
+
     }
 
     /**
@@ -78,7 +100,12 @@ class InscripcionController extends Controller
      */
     public function edit($id)
     {
-        //
+        // Obtener la inscripción y las listas de estudiantes y carreras
+        $inscripcion = DB::table('inscripciones')->where('id', $id)->first();
+        $estudiantes = DB::table('estudiantes')->get();
+        $carreras = DB::table('carreras')->get();
+
+        return view('inscripciones.edit', ['inscripcion' => $inscripcion, 'estudiantes' => $estudiantes, 'carreras' => $carreras]);
     }
 
     /**
@@ -90,7 +117,24 @@ class InscripcionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // Validación de datos
+        $request->validate([
+            'estudiante_id' => 'required',
+            'carrera_id' => 'required',
+            'fecha_inscripcion' => 'required',
+        ]);
+
+        // Actualizar la inscripción
+        DB::table('inscripciones')
+            ->where('id', $id)
+            ->update([
+                'estudiante_id' => $request->estudiante_id,
+                'carrera_id' => $request->carrera_id,
+                'fecha_inscripcion' => $request->fecha_inscripcion,
+            ]);
+
+        // Redireccionar a la lista de inscripciones
+        return redirect()->route('inscripciones.index');
     }
 
     /**
@@ -101,6 +145,10 @@ class InscripcionController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // Eliminar la inscripción
+        DB::table('inscripciones')->where('id', $id)->delete();
+
+        // Redireccionar a la lista de inscripciones
+        return redirect()->route('inscripciones.index');
     }
 }
