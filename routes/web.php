@@ -1,6 +1,9 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\EstudianteController; 
+use App\Http\Controllers\CarreraController;
+use App\Http\Controllers\InscripcionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,6 +19,23 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::middleware(['auth'])->group(function () {
+    // Rutas para Estudiantes
+    Route::get('/estudiantes', [EstudianteController::class, 'index'])->name('estudiantes.index');
+    Route::get('/estudiantes/create', [EstudianteController::class, 'create'])->name('estudiantes.create');
+    // Otras rutas para Estudiantes
+
+    // Rutas para Carreras
+    Route::get('/carreras', [CarreraController::class, 'index'])->name('carreras.index');
+    Route::get('/carreras/create', [CarreraController::class, 'create'])->name('carreras.create');
+    // Otras rutas para Carreras
+
+    // Rutas para Inscripciones
+    Route::get('/inscripciones', [InscripcionController::class, 'index'])->name('inscripciones.index');
+    Route::get('/inscripciones/create', [InscripcionController::class, 'create'])->name('inscripciones.create');
+    // Otras rutas para Inscripciones
 });
 
 Route::get('/dashboard', function () {
