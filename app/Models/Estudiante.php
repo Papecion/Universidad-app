@@ -7,12 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Estudiante extends Model
 {
+    use HasFactory;
     protected $fillable = [
         'nombre',
         'apellido',
         'email',
     ];
-    use HasFactory;
 
     public function inscripciones()
     {
